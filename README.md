@@ -1,75 +1,111 @@
-# React + TypeScript + Vite
+# Fiverr Gig Thumbnail Creator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based tool to design **1280 × 769 px** gig cover images for [Fiverr](https://www.fiverr.com/) (and similar marketplaces). Pick a layout, customize copy and colors, drop in your photos and logos, preview at different zoom levels, and **download a PNG** ready to upload—without Photoshop or Figma.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Why this project exists
 
-## React Compiler
+Selling on Fiverr means your **gig image** is often the first thing buyers see. A clear, on-brand thumbnail improves clicks and trust, but not everyone wants to maintain design files or pay for templates elsewhere.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+This app was built to:
 
-Note: This will impact Vite dev & build performances.
+- **Save time** — reusable layouts tuned to Fiverr’s image proportions so you are not cropping or guessing sizes by hand.
+- **Stay consistent** — same canvas dimensions and structure across gigs (Software Development today; more categories planned).
+- **Work locally** — your images are handled in the browser; export uses the preview you see.
 
-## Expanding the ESLint configuration
+It is a focused editor, not a general-purpose design suite: opinionated templates, fast iteration, one-click PNG export.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## What you can do
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Capability | Details |
+|------------|---------|
+| **Canvas** | Fixed **1280 × 769** px (Fiverr-style gig image aspect). |
+| **Categories** | **Software Development**, **Graphics & Design**, **Digital Marketing** — three template slots each in the UI. |
+| **Templates** | **Software** category has **three** fully customizable layouts; other categories show “coming soon” placeholders until their designs are added. |
+| **Customization** | Per template: headlines, colors, service lists, hero/brand images, tech-stack icons, footers, etc. (depends on template). |
+| **Preview** | Live preview with adjustable zoom; **Download PNG** uses [`html-to-image`](https://github.com/bubkoo/html-to-image) to rasterize the same frame. |
+| **Language** | **English** and **French** UI (i18n). |
+| **Theme** | Light / dark / system (via `next-themes`). |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Tech stack
+
+- **React 19** + **TypeScript** + **Vite 8**
+- **Tailwind CSS v4** + **shadcn/ui** (Radix-based components)
+- **Zustand** — editor state (active category/template, per-template settings)
+- **Framer Motion** — light UI motion where used
+- **i18next** — translations (`src/locales/en.json`, `fr.json`)
+- **Sonner** — toasts (e.g. invalid or oversized image uploads)
+
+---
+
+## Getting started
+
+**Requirements:** [Node.js](https://nodejs.org/) (LTS recommended) and npm.
+
+```bash
+# Install dependencies
+npm install
+
+# Dev server with HMR
+npm run dev
+
+# Production build (output in dist/)
+npm run build
+
+# Preview the production build locally
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open the URL Vite prints (usually `http://localhost:5173`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Project layout (high level)
+
+| Path | Role |
+|------|------|
+| `src/App.tsx` | Shell: header, sidebar (categories + template picker + controls), preview pane. |
+| `src/components/thumbnail-preview.tsx` | Scaled preview + zoom + PNG download. |
+| `src/stores/editor-store.ts` | Active template and settings map. |
+| `src/templates/registry.ts` | All templates: defaults, `View`, `Controls`, `ready` vs `placeholder`. |
+| `src/templates/software/*` | Implemented Software Development layouts (`software-1` … `software-3`). |
+| `src/templates/placeholder/*` | Placeholder canvas + minimal controls for unfinished templates. |
+| `src/assets/` | Bundled images used by templates (e.g. hero artwork). |
+| `src/locales/` | UI strings for EN / FR. |
+
+Adding a new **ready** template means: extend `TemplateId` / `TemplateSettingsMap`, register defaults and components in `registry.ts`, and add any new copy keys to the locale files.
+
+---
+
+## Image uploads
+
+Uploaded images are read in the browser and stored as **data URLs** in application state (in-memory). Use **PNG**, **JPEG**, or **SVG**; oversized files are rejected with a toast (see app limits in `src/lib/files/image-data-url.ts`).
+
+---
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite dev server. |
+| `npm run build` | Typecheck + production bundle. |
+| `npm run preview` | Serve `dist/` locally. |
+| `npm run lint` | Run ESLint. |
+
+---
+
+## License
+
+This repository is **private** (`package.json`). If you publish it later, add a `LICENSE` file and update this section.
+
+---
+
+## Acknowledgements
+
+- UI built with [shadcn/ui](https://ui.shadcn.com/) patterns and [Lucide](https://lucide.dev/) icons.
+- PNG export powered by [html-to-image](https://github.com/bubkoo/html-to-image).
