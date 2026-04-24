@@ -2,6 +2,8 @@
 
 A browser-based tool to design **1280 × 769 px** gig cover images for [Fiverr](https://www.fiverr.com/) (and similar marketplaces). Pick a layout, customize copy and colors, drop in your photos and logos, preview at different zoom levels, and **download a PNG** ready to upload—without Photoshop or Figma.
 
+**Live app:** [https://gig-thumbnail-generator.vercel.app](https://gig-thumbnail-generator.vercel.app)
+
 ---
 
 ## Why this project exists
@@ -11,7 +13,7 @@ Selling on Fiverr means your **gig image** is often the first thing buyers see. 
 This app was built to:
 
 - **Save time** — reusable layouts tuned to Fiverr’s image proportions so you are not cropping or guessing sizes by hand.
-- **Stay consistent** — same canvas dimensions and structure across gigs (Software Development today; more categories planned).
+- **Stay consistent** — same canvas dimensions and structure across gigs (Software and Graphics templates today; more slots planned).
 - **Work locally** — your images are handled in the browser; export uses the preview you see.
 
 It is a focused editor, not a general-purpose design suite: opinionated templates, fast iteration, one-click PNG export.
@@ -24,7 +26,7 @@ It is a focused editor, not a general-purpose design suite: opinionated template
 |------------|---------|
 | **Canvas** | Fixed **1280 × 769** px (Fiverr-style gig image aspect). |
 | **Categories** | **Software Development**, **Graphics & Design**, **Digital Marketing** — three template slots each in the UI. |
-| **Templates** | **Software** category has **three** fully customizable layouts; other categories show “coming soon” placeholders until their designs are added. |
+| **Templates** | **Software** has **three** layouts; **Graphics & Design** has **three** (“Vector poster”, “UX device frame”, “Flow hybrid”); Marketing slots are still placeholders. |
 | **Customization** | Per template: headlines, colors, service lists, hero/brand images, tech-stack icons, footers, etc. (depends on template). |
 | **Preview** | Live preview with adjustable zoom; **Download PNG** uses [`html-to-image`](https://github.com/bubkoo/html-to-image) to rasterize the same frame. |
 | **Language** | **English** and **French** UI (i18n). |
@@ -73,7 +75,8 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 | `src/components/thumbnail-preview.tsx` | Scaled preview + zoom + PNG download. |
 | `src/stores/editor-store.ts` | Active template and settings map. |
 | `src/templates/registry.ts` | All templates: defaults, `View`, `Controls`, `ready` vs `placeholder`. |
-| `src/templates/software/*` | Implemented Software Development layouts (`software-1` … `software-3`). |
+| `src/templates/software/*` | Software Development layouts (`software-1` … `software-3`). |
+| `src/templates/graphics/*` | Graphics & Design layouts (`graphics-1` … `graphics-3`). |
 | `src/templates/placeholder/*` | Placeholder canvas + minimal controls for unfinished templates. |
 | `src/assets/` | Bundled images used by templates (e.g. hero artwork). |
 | `src/locales/` | UI strings for EN / FR. |
