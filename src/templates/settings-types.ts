@@ -82,6 +82,76 @@ export type Software3Settings = {
   websiteUrl: string
 }
 
+/** First Graphics & Design template — vector-poster, showcase frame */
+export const GRAPHICS1_MAX_SKILL_ICONS = 6
+
+export type Graphics1Settings = {
+  bgBase: string
+  ink: string
+  accent1: string
+  accent2: string
+  headlineLine1: string
+  headlineLine2: string
+  badgeText: string
+  subline: string
+  featureLine1: string
+  featureLine2: string
+  featureLine3: string
+  /** Hero mockup / sample work (data URL) */
+  showcaseImage: string
+  skillIcons: string[]
+  footerTag: string
+}
+
+/** Second Graphics & Design template — UI/UX designer, device mockup */
+export const GRAPHICS2_MAX_SKILL_ICONS = 6
+
+export type Graphics2Settings = {
+  bgBase: string
+  gridColor: string
+  ink: string
+  accent: string
+  surface: string
+  headlineLine1: string
+  headlineLine2: string
+  badgeText: string
+  subline: string
+  featureLine1: string
+  featureLine2: string
+  featureLine3: string
+  /** Screen content inside phone mockup (data URL) */
+  deviceImage: string
+  /** Small label above device (e.g. prototype name) */
+  chromeLabel: string
+  skillIcons: string[]
+  footerTag: string
+}
+
+/** Third Graphics & Design — hybrid graphic + UI/UX, organic shapes (no square panels) */
+export const GRAPHICS3_MAX_SKILL_ICONS = 6
+
+export type Graphics3Settings = {
+  gradientFrom: string
+  gradientVia: string
+  gradientTo: string
+  ink: string
+  accentGraphic: string
+  accentUi: string
+  headlineLine1: string
+  headlineLine2: string
+  badgeText: string
+  subline: string
+  tag1: string
+  tag2: string
+  tag3: string
+  /** Main work — poster, brand, or full UI (organic frame) */
+  primaryImage: string
+  /** Optional UI detail / logo mark (circular) */
+  detailImage: string
+  skillIcons: string[]
+  footerTag: string
+}
+
 /** Minimal shared shape until a template gets a full editor */
 export type PlaceholderTemplateSettings = {
   title: string
@@ -91,9 +161,9 @@ export type TemplateSettingsMap = {
   'software-1': Software1Settings
   'software-2': Software2Settings
   'software-3': Software3Settings
-  'graphics-1': PlaceholderTemplateSettings
-  'graphics-2': PlaceholderTemplateSettings
-  'graphics-3': PlaceholderTemplateSettings
+  'graphics-1': Graphics1Settings
+  'graphics-2': Graphics2Settings
+  'graphics-3': Graphics3Settings
   'marketing-1': PlaceholderTemplateSettings
   'marketing-2': PlaceholderTemplateSettings
   'marketing-3': PlaceholderTemplateSettings

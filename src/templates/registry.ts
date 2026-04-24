@@ -10,6 +10,12 @@ import { Software2View } from '@/templates/software/software-2-view'
 import { Software2Controls } from '@/templates/software/software-2-controls'
 import { Software3View } from '@/templates/software/software-3-view'
 import { Software3Controls } from '@/templates/software/software-3-controls'
+import { Graphics1View } from '@/templates/graphics/graphics-1-view'
+import { Graphics1Controls } from '@/templates/graphics/graphics-1-controls'
+import { Graphics2View } from '@/templates/graphics/graphics-2-view'
+import { Graphics2Controls } from '@/templates/graphics/graphics-2-controls'
+import { Graphics3View } from '@/templates/graphics/graphics-3-view'
+import { Graphics3Controls } from '@/templates/graphics/graphics-3-controls'
 
 export type TemplateStatus = 'ready' | 'placeholder'
 
@@ -121,24 +127,80 @@ export const TEMPLATE_REGISTRY: {
     View: Software3View,
     Controls: Software3Controls,
   },
-  'graphics-1': ph(
-    'graphics-1',
-    'graphics',
-    'graphics',
-    'Graphics template 1',
-  ),
-  'graphics-2': ph(
-    'graphics-2',
-    'graphics',
-    'graphics',
-    'Graphics template 2',
-  ),
-  'graphics-3': ph(
-    'graphics-3',
-    'graphics',
-    'graphics',
-    'Graphics template 3',
-  ),
+  'graphics-1': {
+    categoryId: 'graphics',
+    status: 'ready',
+    defaultSettings: {
+      bgBase: '#f4f0e8',
+      ink: '#1a1a2e',
+      accent1: '#e11d48',
+      accent2: '#0d9488',
+      headlineLine1: 'Bold brands',
+      headlineLine2: '& vector systems',
+      badgeText: 'Graphic design',
+      subline:
+        'Logos, icons, and social kits — crisp, scalable, on-brand.',
+      featureLine1: 'Vector-first style',
+      featureLine2: 'Print & digital',
+      featureLine3: 'Source files included',
+      showcaseImage: '',
+      skillIcons: [],
+      footerTag: 'Fiverr · Same-day reply',
+    },
+    View: Graphics1View,
+    Controls: Graphics1Controls,
+  },
+  'graphics-2': {
+    categoryId: 'graphics',
+    status: 'ready',
+    defaultSettings: {
+      bgBase: '#f1f5f9',
+      gridColor: '#cbd5e1',
+      ink: '#0f172a',
+      accent: '#4f46e5',
+      surface: '#ffffff',
+      headlineLine1: 'Product flows',
+      headlineLine2: 'pixel-perfect UI',
+      badgeText: 'UI / UX design',
+      subline:
+        'User research, wireframes, hi-fi screens, and dev-ready handoff.',
+      featureLine1: 'Research & journey mapping',
+      featureLine2: 'Wireframes & prototypes',
+      featureLine3: 'UI systems & components',
+      deviceImage: '',
+      chromeLabel: 'Prototype v2',
+      skillIcons: [],
+      footerTag: 'Figma · Web & mobile · Design systems',
+    },
+    View: Graphics2View,
+    Controls: Graphics2Controls,
+  },
+  'graphics-3': {
+    categoryId: 'graphics',
+    status: 'ready',
+    defaultSettings: {
+      gradientFrom: '#1e1b4b',
+      gradientVia: '#5b21b6',
+      gradientTo: '#9d174d',
+      ink: '#fafafa',
+      accentGraphic: '#f472b6',
+      accentUi: '#38bdf8',
+      headlineLine1: 'Visual stories',
+      headlineLine2: 'that ship as UI',
+      badgeText: 'Design × Product',
+      subline:
+        'Brand systems, interfaces, and motion — one craft, two outputs.',
+      tag1: 'Brand & illustration',
+      tag2: 'Product UI',
+      tag3: 'Design systems',
+      primaryImage: '',
+      detailImage: '',
+      skillIcons: [],
+      footerTag: 'Graphics · UX · Let’s build',
+    },
+    View: Graphics3View,
+    Controls: Graphics3Controls,
+  },
   'marketing-1': ph(
     'marketing-1',
     'marketing',
