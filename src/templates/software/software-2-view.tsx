@@ -1,4 +1,4 @@
-import { Check, Globe, Layers, Phone, Play } from 'lucide-react'
+import { ArrowUpRight, Check, Globe, Layers, Phone } from 'lucide-react'
 
 import {
   THUMBNAIL_HEIGHT,
@@ -14,9 +14,10 @@ import {
   type Software2Settings,
 } from '@/templates/settings-types'
 
-type Props = {
-  settings: Software2Settings
-}
+type Props = { settings: Software2Settings }
+
+const SERIF_STACK =
+  'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif'
 
 function padServices(items: string[] | undefined): string[] {
   const base = [...(items ?? [])]
@@ -24,7 +25,6 @@ function padServices(items: string[] | undefined): string[] {
   return base.slice(0, SOFTWARE2_MAX_SERVICES)
 }
 
-/** Hex + alpha for overlays */
 function withAlpha(hex: string, alpha: number): string {
   const h = hex.replace('#', '')
   if (h.length !== 6) return hex
@@ -35,9 +35,10 @@ function withAlpha(hex: string, alpha: number): string {
 }
 
 export function Software2View({ settings }: Props) {
-  const base = settings.navy ?? '#0a0e17'
-  const panel = settings.pink ?? '#121a2e'
-  const accent = settings.lavender ?? '#3b82f6'
+  const base = settings.navy
+  const panel = settings.pink
+  const accent = settings.lavender
+
   const services = padServices(settings.serviceItems).map((s) => s.trim())
   const skillSlots = paddedSkillIcons(
     settings.skillIcons,
@@ -48,148 +49,145 @@ export function Software2View({ settings }: Props) {
     SOFTWARE2_MAX_SKILL_ICONS,
   )
 
-  const accentSoft = withAlpha(accent, 0.12)
-  const accentLine = withAlpha(accent, 0.35)
-  const panelBorder = withAlpha('#ffffff', 0.08)
-
   return (
     <div
-      className="relative overflow-hidden font-sans antialiased"
+      className="relative overflow-hidden font-sans antialiased text-white"
       style={{
         width: THUMBNAIL_WIDTH,
         height: THUMBNAIL_HEIGHT,
         backgroundColor: base,
-        color: '#f1f5f9',
       }}
     >
-      {/* Structural grid */}
+      {/* Ambient gradient mesh */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          backgroundImage: `
-            linear-gradient(to right, ${withAlpha('#ffffff', 0.035)} 1px, transparent 1px),
-            linear-gradient(to bottom, ${withAlpha('#ffffff', 0.035)} 1px, transparent 1px)
-          `,
-          backgroundSize: '56px 56px',
+          background: `radial-gradient(80% 60% at 100% 0%, ${withAlpha(accent, 0.32)} 0%, transparent 55%), radial-gradient(60% 50% at 0% 100%, ${withAlpha(accent, 0.16)} 0%, transparent 50%)`,
         }}
         aria-hidden
       />
-
-      {/* Diagonal vector bands */}
+      {/* fine isometric grid */}
       <div
-        className="pointer-events-none absolute -right-[20%] top-[-30%] h-[140%] w-[55%] origin-center rotate-[12deg] opacity-[0.55]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
-          background: `linear-gradient(105deg, transparent 0%, ${accentSoft} 45%, transparent 70%)`,
+          backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+          backgroundSize: '72px 72px',
         }}
         aria-hidden
       />
+      {/* large accent ring */}
       <div
-        className="pointer-events-none absolute -right-[10%] bottom-[-40%] h-[90%] w-[45%] origin-center -rotate-[8deg] opacity-40"
-        style={{
-          background: `linear-gradient(195deg, transparent 20%, ${withAlpha(accent, 0.06)} 50%, transparent 80%)`,
-        }}
+        className="pointer-events-none absolute -right-[300px] top-[40%] h-[720px] w-[720px] -translate-y-1/2 rounded-full opacity-25 blur-3xl"
+        style={{ background: accent }}
         aria-hidden
       />
 
-      {/* Accent frame lines — minimal “blueprint” corners */}
-      <svg
-        className="pointer-events-none absolute top-10 left-10 z-10 h-24 w-24 opacity-50"
-        viewBox="0 0 96 96"
-        fill="none"
-        aria-hidden
-      >
-        <path
-          d="M4 32V4h28"
-          stroke={accentLine}
-          strokeWidth="1.5"
-          strokeLinecap="square"
-        />
-        <path
-          d="M64 4h28v28"
-          stroke={accentLine}
-          strokeWidth="1.5"
-          strokeLinecap="square"
-        />
-      </svg>
+      {/* Top meta strip */}
+      <div className="relative z-10 flex items-center justify-between border-b border-white/10 px-14 py-4">
+        <div className="flex items-center gap-3 font-mono text-[10px] tracking-[0.32em] uppercase text-slate-400">
+          <span className="size-1.5 rounded-full" style={{ background: accent }} />
+          <span>Issue 04</span>
+          <span className="opacity-40">·</span>
+          <span>Web Development Quarterly</span>
+        </div>
+        <div className="flex items-center gap-3 text-right">
+          {settings.brandLogo ? (
+            <img
+              src={settings.brandLogo}
+              alt=""
+              className="h-7 w-auto object-contain"
+              draggable={false}
+            />
+          ) : null}
+          {settings.brandName?.trim() ? (
+            <div className="text-[13px] font-semibold leading-tight text-white">
+              {settings.brandName}
+            </div>
+          ) : null}
+        </div>
+      </div>
 
-      <div className="relative z-10 flex h-full flex-col px-12 pb-7 pt-10">
-        {/* items-start: avoid stretch-tall column breaking aspect-ratio / image clipping */}
-        <div className="flex min-h-0 flex-1 flex-row items-start gap-10">
-        {/* Copy + services */}
-        <div className="flex min-w-0 flex-1 flex-col pr-2">
-          <div className="max-w-[560px] space-y-2">
+      <div className="relative z-10 grid h-[calc(100%-7rem)] grid-cols-12 gap-8 px-14 pt-8 pb-4">
+        {/* LEFT */}
+        <div className="col-span-7 flex min-w-0 flex-col">
+          <div className="space-y-1">
             <h1
-              className="text-[52px] font-semibold leading-[1.02] tracking-tight text-balance text-white"
-              style={{ textShadow: '0 2px 40px rgba(0,0,0,0.45)' }}
+              className="text-[58px] font-medium leading-[0.98] tracking-tight text-balance text-white"
+              style={{ fontFamily: SERIF_STACK }}
             >
               {settings.headlineLine1}
             </h1>
             <h1
-              className="text-[52px] font-semibold leading-[1.02] tracking-tight text-balance"
+              className="text-[58px] leading-[0.98] tracking-tight text-balance"
               style={{
-                color: '#e2e8f0',
-                textShadow: '0 2px 32px rgba(0,0,0,0.35)',
+                fontFamily: SERIF_STACK,
+                fontStyle: 'italic',
+                fontWeight: 500,
+                color: accent,
               }}
             >
               {settings.headlineLine2}
             </h1>
-            <div className="pt-2">
-              <span
-                className="inline-flex items-center rounded-md border px-4 py-2 text-[15px] font-semibold tracking-wide"
-                style={{
-                  borderColor: withAlpha(accent, 0.55),
-                  color: accent,
-                  backgroundColor: withAlpha(accent, 0.08),
-                }}
-              >
-                {settings.headlinePill}
-              </span>
-            </div>
           </div>
 
-          {/* Services panel */}
+          <div className="mt-5">
+            <span
+              className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px] font-bold tracking-[0.22em] uppercase"
+              style={{
+                borderColor: withAlpha(accent, 0.55),
+                color: accent,
+                backgroundColor: withAlpha(accent, 0.1),
+              }}
+            >
+              <span
+                className="size-1.5 rounded-full"
+                style={{ background: accent }}
+              />
+              {settings.headlinePill}
+            </span>
+          </div>
+
+          {/* Capabilities card */}
           <div
-            className="relative z-10 mt-9 max-w-[560px] rounded-2xl border p-7 shadow-2xl"
+            className="mt-7 max-w-[580px] overflow-hidden rounded-2xl border"
             style={{
+              borderColor: '#ffffff15',
               backgroundColor: panel,
-              borderColor: panelBorder,
-              boxShadow: `0 24px 64px rgba(0,0,0,0.35), 0 0 0 1px ${withAlpha(accent, 0.12)} inset`,
+              boxShadow: `0 30px 60px rgba(0,0,0,0.4), inset 0 1px 0 #ffffff10`,
             }}
           >
             <div
-              className="absolute top-0 left-10 h-[3px] w-24 rounded-b-md"
-              style={{ backgroundColor: accent }}
-              aria-hidden
-            />
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 pt-1">
+              className="flex items-center justify-between border-b px-6 py-3"
+              style={{ borderColor: '#ffffff10' }}
+            >
               <span
-                className="text-[13px] font-semibold tracking-wide text-slate-300 uppercase"
-                style={{ letterSpacing: '0.12em' }}
+                className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-slate-300"
               >
                 {settings.servicesSectionTitle}
               </span>
-              <div
-                className="h-px flex-1 min-w-[40px] opacity-40"
-                style={{
-                  background: `linear-gradient(90deg, ${accentLine}, transparent)`,
-                }}
-                aria-hidden
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="size-1 rounded-full bg-rose-400/70" />
+                <span className="size-1 rounded-full bg-amber-300/80" />
+                <span
+                  className="size-1 rounded-full"
+                  style={{ background: accent }}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-3.5">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 py-5">
               {services.map((label, i) =>
                 label ? (
                   <div key={i} className="flex items-start gap-3">
                     <span
-                      className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md"
+                      className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-md"
                       style={{
                         backgroundColor: withAlpha(accent, 0.18),
                         color: accent,
                       }}
                     >
-                      <Check className="size-3.5 stroke-[2.5]" aria-hidden />
+                      <Check className="size-3 stroke-[3]" aria-hidden />
                     </span>
-                    <span className="text-[16px] font-medium leading-snug text-slate-200">
+                    <span className="text-[15px] font-medium leading-snug text-slate-100">
                       {label}
                     </span>
                   </div>
@@ -198,19 +196,15 @@ export function Software2View({ settings }: Props) {
             </div>
           </div>
 
-          <div className="mt-6 flex max-w-[560px] flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-2.5">
             {Array.from({ length: visibleSkillSlots }, (_, i) => {
               const src = skillSlots[i]?.trim()
               if (src) {
                 return (
                   <div
                     key={`${i}-${src.slice(0, 24)}`}
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border p-1.5 shadow-inner sm:h-14 sm:w-14"
-                    style={{
-                      borderColor: withAlpha(accent, 0.35),
-                      backgroundColor: withAlpha(accent, 0.08),
-                      boxShadow: `0 0 0 1px ${withAlpha('#fff', 0.04)} inset`,
-                    }}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border bg-white/[0.05] p-1.5"
+                    style={{ borderColor: withAlpha(accent, 0.3) }}
                   >
                     <img
                       src={src}
@@ -223,142 +217,120 @@ export function Software2View({ settings }: Props) {
               }
               return (
                 <div
-                  key={`skill-ph-${i}`}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-dashed p-1.5 shadow-inner sm:h-14 sm:w-14"
-                  style={{
-                    borderColor: withAlpha(accent, 0.32),
-                    backgroundColor: withAlpha(accent, 0.04),
-                    boxShadow: `0 0 0 1px ${withAlpha('#fff', 0.03)} inset`,
-                  }}
+                  key={`s2-ph-${i}`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-dashed"
+                  style={{ borderColor: withAlpha(accent, 0.3) }}
                   aria-hidden
                 >
                   <Layers
-                    className="size-5 sm:size-6"
-                    strokeWidth={1.5}
-                    style={{ color: withAlpha(accent, 0.45) }}
+                    className="size-4 text-white/40"
+                    strokeWidth={1.75}
                   />
                 </div>
               )
             })}
           </div>
-
-          <div className="mt-auto pt-8">
-            <div
-              className="flex flex-wrap items-center gap-x-10 gap-y-3 rounded-xl border px-5 py-3.5"
-              style={{
-                borderColor: panelBorder,
-                backgroundColor: withAlpha('#000000', 0.35),
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className="flex size-10 items-center justify-center rounded-lg"
-                  style={{
-                    backgroundColor: withAlpha(accent, 0.2),
-                    color: accent,
-                  }}
-                >
-                  <Play className="size-4 fill-current" aria-hidden />
-                </span>
-                <span className="text-[13px] font-bold tracking-[0.2em] text-white uppercase">
-                  {settings.ctaLabel}
-                </span>
-              </div>
-              <div className="hidden h-8 w-px bg-white/10 sm:block" aria-hidden />
-              <div className="flex flex-wrap items-center gap-8 text-[14px]">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Phone className="size-4 shrink-0 text-slate-500" />
-                  <span>
-                    <span className="text-slate-500">
-                      {settings.phonePrefix}
-                    </span>{' '}
-                    <span className="font-medium text-slate-200">
-                      {settings.phoneValue}
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Globe className="size-4 shrink-0 text-slate-500" />
-                  <span>
-                    <span className="text-slate-500">
-                      {settings.websitePrefix}
-                    </span>{' '}
-                    <span className="font-medium text-slate-200">
-                      {settings.websiteValue}
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right column: brand above hero; hero uses absolute fill so image cannot escape frame */}
-        <div className="relative z-20 flex w-[400px] shrink-0 flex-col items-stretch">
-          <div className="mb-8 flex w-full flex-col items-end gap-2 text-right">
-            {settings.brandLogo ? (
-              <img
-                src={settings.brandLogo}
-                alt=""
-                className="block h-12 w-auto max-w-[280px] object-contain object-right"
-                draggable={false}
-              />
-            ) : null}
-            {settings.brandName?.trim() ? (
-              <div
-                className={`max-w-[280px] text-[15px] font-medium leading-snug text-slate-300 ${settings.brandLogo ? 'opacity-95' : 'text-[17px] font-semibold text-slate-100'}`}
-                style={
-                  settings.brandLogo
-                    ? undefined
-                    : { textShadow: '0 1px 24px rgba(0,0,0,0.5)' }
-                }
-              >
-                {settings.brandName}
-              </div>
-            ) : !settings.brandLogo ? (
-              <div className="min-h-[1.25rem] w-full" aria-hidden />
-            ) : null}
-          </div>
-
-          <div className="relative w-full max-w-[400px] shrink-0 self-end">
+        {/* RIGHT — hero portrait */}
+        <div className="col-span-5 flex min-w-0 items-center justify-end">
+          <div className="relative w-full max-w-[360px]">
+            {/* Accent block behind */}
             <div
-              className="pointer-events-none absolute left-1/2 top-[45%] z-0 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[88px]"
-              style={{ background: withAlpha(accent, 0.14) }}
+              className="absolute -right-3 -top-3 h-full w-full rounded-3xl"
+              style={{
+                background: `linear-gradient(135deg, ${accent}, transparent 60%)`,
+                opacity: 0.35,
+              }}
               aria-hidden
             />
             <div
-              className="relative z-10 overflow-hidden rounded-[28px] shadow-2xl"
+              className="relative overflow-hidden rounded-3xl border-2 shadow-2xl"
               style={{
-                width: '100%',
-                maxWidth: 400,
                 aspectRatio: '3 / 4',
-                border: `2px solid ${withAlpha(accent, 0.55)}`,
-                boxShadow: `0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px ${withAlpha('#fff', 0.06)} inset`,
+                borderColor: withAlpha(accent, 0.6),
+                boxShadow: `0 40px 90px rgba(0,0,0,0.55), 0 0 0 1px #ffffff10 inset`,
               }}
             >
               {settings.heroImage ? (
                 <img
                   src={settings.heroImage}
                   alt=""
-                  className="absolute inset-0 z-[1] h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   draggable={false}
                 />
               ) : (
                 <div
-                  className="absolute inset-0 z-[1] bg-gradient-to-b from-slate-800 to-slate-950"
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(160deg, ${panel} 0%, ${base} 100%)`,
+                  }}
                   aria-hidden
                 />
               )}
+              {/* Bottom film fade */}
               <div
-                className="pointer-events-none absolute inset-0 z-[2]"
+                className="pointer-events-none absolute inset-0"
                 style={{
-                  background: `linear-gradient(180deg, transparent 55%, ${withAlpha(base, 0.55)} 100%)`,
+                  background: `linear-gradient(180deg, transparent 55%, ${withAlpha(base, 0.85)} 100%)`,
                 }}
                 aria-hidden
               />
+              {/* Caption pill at bottom */}
+              <div
+                className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-xl border px-3.5 py-2 backdrop-blur-md"
+                style={{
+                  borderColor: '#ffffff22',
+                  background: withAlpha('#000000', 0.45),
+                }}
+              >
+                <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-slate-300">
+                  Featured Build
+                </span>
+                <ArrowUpRight className="size-3.5" style={{ color: accent }} />
+              </div>
             </div>
+            {/* Corner ticks */}
+            <div
+              className="pointer-events-none absolute -left-2 -top-2 h-4 w-4 border-l-2 border-t-2"
+              style={{ borderColor: accent }}
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute -right-2 -bottom-2 h-4 w-4 border-r-2 border-b-2"
+              style={{ borderColor: accent }}
+              aria-hidden
+            />
           </div>
         </div>
+      </div>
+
+      {/* Footer CTA bar */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between gap-6 border-t border-white/10 px-14 py-3.5 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex size-9 items-center justify-center rounded-lg"
+            style={{ background: accent, color: base }}
+          >
+            <ArrowUpRight className="size-4" strokeWidth={3} />
+          </div>
+          <span className="text-[12px] font-bold tracking-[0.22em] uppercase text-white">
+            {settings.ctaLabel}
+          </span>
+        </div>
+        <div className="flex items-center gap-6 text-[13px]">
+          <div className="flex items-center gap-2 text-slate-300">
+            <Phone className="size-3.5 text-slate-400" />
+            <span className="text-slate-400">{settings.phonePrefix}</span>
+            <span className="font-medium text-white">{settings.phoneValue}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-300">
+            <Globe className="size-3.5 text-slate-400" />
+            <span className="text-slate-400">{settings.websitePrefix}</span>
+            <span className="font-medium text-white">
+              {settings.websiteValue}
+            </span>
+          </div>
         </div>
       </div>
     </div>

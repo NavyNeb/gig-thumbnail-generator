@@ -1,4 +1,4 @@
-import { Layers } from 'lucide-react'
+import { Activity, Code2, Terminal } from 'lucide-react'
 
 import {
   THUMBNAIL_HEIGHT,
@@ -15,15 +15,79 @@ import {
   SOFTWARE1_MAX_STACK_LABELS,
 } from '@/templates/settings-types'
 
-type Props = {
-  settings: Software1Settings
-}
+type Props = { settings: Software1Settings }
 
-function stackLine(settings: Software1Settings): string[] {
-  return (settings.stackLabels ?? [])
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, SOFTWARE1_MAX_STACK_LABELS)
+const KEYWORD_RE =
+  /\b(const|let|var|function|return|import|from|export|new|class|async|await|if|else|true|false|null|undefined|=>|interface|type)\b/g
+const STRING_RE = /(["'`])((?:\\.|(?!\1).)*)\1/g
+
+function tokenize(line: string, accent: string) {
+  if (!line) return null
+  const segments: { text: string; kind: 'plain' | 'keyword' | 'string' }[] = []
+  let cursor = 0
+  const stringMatches: { start: number; end: number; text: string }[] = []
+  let m: RegExpExecArray | null
+  STRING_RE.lastIndex = 0
+  while ((m = STRING_RE.exec(line)) !== null) {
+    stringMatches.push({ start: m.index, end: m.index + m[0].length, text: m[0] })
+  }
+  for (const s of stringMatches) {
+    if (s.start > cursor) {
+      const slice = line.slice(cursor, s.start)
+      let kCursor = 0
+      KEYWORD_RE.lastIndex = 0
+      let km: RegExpExecArray | null
+      while ((km = KEYWORD_RE.exec(slice)) !== null) {
+        if (km.index > kCursor) {
+          segments.push({ text: slice.slice(kCursor, km.index), kind: 'plain' })
+        }
+        segments.push({ text: km[0], kind: 'keyword' })
+        kCursor = km.index + km[0].length
+      }
+      if (kCursor < slice.length) {
+        segments.push({ text: slice.slice(kCursor), kind: 'plain' })
+      }
+    }
+    segments.push({ text: s.text, kind: 'string' })
+    cursor = s.end
+  }
+  if (cursor < line.length) {
+    const slice = line.slice(cursor)
+    let kCursor = 0
+    KEYWORD_RE.lastIndex = 0
+    let km: RegExpExecArray | null
+    while ((km = KEYWORD_RE.exec(slice)) !== null) {
+      if (km.index > kCursor) {
+        segments.push({ text: slice.slice(kCursor, km.index), kind: 'plain' })
+      }
+      segments.push({ text: km[0], kind: 'keyword' })
+      kCursor = km.index + km[0].length
+    }
+    if (kCursor < slice.length) {
+      segments.push({ text: slice.slice(kCursor), kind: 'plain' })
+    }
+  }
+  return segments.map((seg, i) => {
+    if (seg.kind === 'keyword') {
+      return (
+        <span key={i} style={{ color: accent, fontWeight: 700 }}>
+          {seg.text}
+        </span>
+      )
+    }
+    if (seg.kind === 'string') {
+      return (
+        <span key={i} style={{ color: '#fbbf24' }}>
+          {seg.text}
+        </span>
+      )
+    }
+    return (
+      <span key={i} style={{ color: '#cbd5e1' }}>
+        {seg.text}
+      </span>
+    )
+  })
 }
 
 export function Software1View({ settings }: Props) {
@@ -47,156 +111,221 @@ export function Software1View({ settings }: Props) {
     settings.skillIcons,
     SOFTWARE1_MAX_SKILL_ICONS,
   )
-  const footerStacks = stackLine(settings)
+  const stack = (settings.stackLabels ?? [])
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, SOFTWARE1_MAX_STACK_LABELS)
 
   return (
     <div
-      className="relative overflow-hidden text-left font-sans antialiased"
+      className="relative overflow-hidden font-sans antialiased text-white"
       style={{
         width: THUMBNAIL_WIDTH,
         height: THUMBNAIL_HEIGHT,
-        background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 55%, #020617 100%)`,
+        background: `radial-gradient(120% 90% at 100% 0%, ${gradientTo} 0%, transparent 60%), radial-gradient(100% 80% at 0% 100%, ${accent}33 0%, transparent 55%), linear-gradient(160deg, ${gradientFrom} 0%, #020617 100%)`,
       }}
     >
+      {/* fine grid */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{
           backgroundImage: `linear-gradient(${accent} 1px, transparent 1px), linear-gradient(90deg, ${accent} 1px, transparent 1px)`,
           backgroundSize: '48px 48px',
         }}
+        aria-hidden
       />
-      <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-blue-600/15 blur-3xl" />
+      {/* aurora glow */}
+      <div
+        className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl"
+        style={{ background: `${accent}25` }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -left-32 bottom-[-180px] h-[420px] w-[420px] rounded-full blur-3xl"
+        style={{ background: `${gradientTo}50` }}
+        aria-hidden
+      />
 
-      <div className="relative flex h-full flex-col justify-between px-14 pb-10 pt-14">
-        <header className="flex shrink-0 items-start justify-between gap-6">
-          <div
-            className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 font-mono text-sm"
-            style={{ borderColor: `${accent}55`, color: accent }}
+      {/* Top brand strip */}
+      <div className="relative z-10 flex items-center justify-between px-14 pt-12">
+        <div
+          className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono text-[11px] tracking-[0.28em] uppercase backdrop-blur-md"
+          style={{
+            borderColor: `${accent}55`,
+            color: accent,
+            background: `${accent}0c`,
+          }}
+        >
+          <Code2 className="size-3.5" strokeWidth={2.5} />
+          <span>Engineering</span>
+          <span className="opacity-50">/</span>
+          <span style={{ color: '#cbd5e1' }}>v2026</span>
+        </div>
+        <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.32em] uppercase text-slate-400">
+          <span
+            className="inline-block size-1.5 rounded-full"
+            style={{ background: accent, boxShadow: `0 0 12px ${accent}` }}
+          />
+          <span>Available · Booking Q1</span>
+        </div>
+      </div>
+
+      <div className="relative z-10 grid h-[calc(100%-7.5rem)] grid-cols-12 gap-10 px-14 pt-8 pb-2">
+        {/* LEFT */}
+        <div className="col-span-7 flex min-w-0 flex-col">
+          <h1
+            className="text-[60px] font-bold leading-[1.0] tracking-[-0.025em] text-balance text-white"
+            style={{ textShadow: '0 4px 60px rgba(0,0,0,0.5)' }}
           >
-            <span aria-hidden className="text-base opacity-90">
-              {'</>'}
-            </span>
-            <span className="tracking-wide uppercase opacity-90">
-              Software
-            </span>
-          </div>
-          <div
-            className="max-w-[58%] font-mono text-sm leading-relaxed opacity-80"
+            {title}
+          </h1>
+          <p
+            className="mt-5 max-w-[540px] text-[19px] leading-snug text-balance"
             style={{ color: accent }}
           >
-            {codeLine}
-          </div>
-        </header>
+            {subtitle}
+          </p>
 
-        <div className="grid min-h-0 flex-1 grid-cols-12 items-center gap-10 py-6">
-          <div className="col-span-12 flex min-w-0 flex-col justify-center space-y-5 lg:col-span-7">
-            <h1
-              className="text-[52px] font-semibold leading-[1.05] tracking-tight text-balance md:text-[56px]"
-              style={{
-                color: '#f8fafc',
-                textShadow: '0 2px 40px rgba(0,0,0,0.45)',
-              }}
-            >
-              {title}
-            </h1>
-            <p
-              className="text-xl font-medium leading-snug text-balance opacity-95 md:text-2xl"
-              style={{ color: accent }}
-            >
-              {subtitle}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              {Array.from({ length: visibleSkillSlots }, (_, i) => {
-                const src = skillSlots[i]?.trim()
-                if (src) {
-                  return (
-                    <div
-                      key={`${i}-${src.slice(0, 24)}`}
-                      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 p-1.5 shadow-inner backdrop-blur-sm md:h-16 md:w-16"
-                    >
-                      <img
-                        src={src}
-                        alt=""
-                        className="max-h-full max-w-full object-contain"
-                        draggable={false}
-                      />
-                    </div>
-                  )
-                }
+          <div className="mt-7 flex flex-wrap items-center gap-2.5">
+            {Array.from({ length: visibleSkillSlots }, (_, i) => {
+              const src = skillSlots[i]?.trim()
+              if (src) {
                 return (
                   <div
-                    key={`skill-ph-${i}`}
-                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed border-white/25 bg-white/4 p-1.5 shadow-inner backdrop-blur-sm md:h-16 md:w-16"
-                    aria-hidden
+                    key={`${i}-${src.slice(0, 24)}`}
+                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border p-1.5 backdrop-blur-md"
+                    style={{
+                      borderColor: `${accent}33`,
+                      background: '#ffffff0a',
+                    }}
                   >
-                    <Layers className="size-6 text-white/35" strokeWidth={1.5} />
+                    <img
+                      src={src}
+                      alt=""
+                      className="max-h-full max-w-full object-contain"
+                      draggable={false}
+                    />
                   </div>
                 )
-              })}
-            </div>
-          </div>
-
-          <div className="col-span-12 flex min-h-[180px] items-center justify-end lg:col-span-5">
-            {heroImages.length > 0 ? (
-              <div className="relative flex w-full max-w-[400px] flex-col items-end justify-center pr-1">
-                {heroImages.map((src, idx) => {
-                  const rotations = ['-rotate-6', 'rotate-3']
-                  const rot = rotations[idx % rotations.length]
-                  const widths = ['w-[90%]', 'w-[82%]']
-                  return (
-                    <div
-                      key={`${idx}-${src.slice(0, 20)}`}
-                      className={`relative ${widths[idx] ?? 'w-[80%]'} ${rot}`}
-                      style={{ marginTop: idx > 0 ? -24 : 0 }}
-                    >
-                      <div
-                        className="overflow-hidden rounded-3xl shadow-2xl ring-2 ring-white/15"
-                        style={{
-                          aspectRatio: '4 / 3',
-                          boxShadow: `0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px ${accent}33`,
-                        }}
-                      >
-                        <img
-                          src={src}
-                          alt=""
-                          className="size-full object-cover"
-                          draggable={false}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : null}
+              }
+              return (
+                <div
+                  key={`s1-ph-${i}`}
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed"
+                  style={{
+                    borderColor: `${accent}40`,
+                    background: '#ffffff05',
+                  }}
+                  aria-hidden
+                >
+                  <Activity className="size-5 text-white/35" strokeWidth={1.5} />
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        <footer className="flex shrink-0 flex-wrap items-end justify-between gap-4 border-t border-white/10 pt-6">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400 md:text-xs">
-            {footerStacks.length > 0 ? (
-              footerStacks.map((label, i) => (
-                <span key={`${label}-${i}`} className="flex items-center gap-3">
-                  {i > 0 ? (
-                    <span className="text-slate-600 select-none" aria-hidden>
-                      ·
-                    </span>
-                  ) : null}
-                  <span className="text-slate-300">{label}</span>
-                </span>
-              ))
-            ) : (
-              <span className="text-slate-600">—</span>
-            )}
-          </div>
+        {/* RIGHT — code editor + optional hero stack */}
+        <div className="col-span-5 flex min-w-0 flex-col items-end justify-center gap-4">
           <div
-            className="h-2 w-40 shrink-0 rounded-full"
+            className="relative w-full max-w-[460px] overflow-hidden rounded-2xl border shadow-2xl"
             style={{
-              background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+              background: '#0b1220',
+              borderColor: '#ffffff14',
+              boxShadow: `0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px ${accent}22, inset 0 1px 0 #ffffff14`,
             }}
-          />
-        </footer>
+          >
+            {/* macOS-style chrome */}
+            <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
+              <span className="size-2.5 rounded-full bg-rose-400" />
+              <span className="size-2.5 rounded-full bg-amber-300" />
+              <span className="size-2.5 rounded-full bg-emerald-400" />
+              <div className="ml-2 flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-0.5 font-mono text-[10px] tracking-wider text-slate-400">
+                <Terminal className="size-3" />
+                <span>fiverr-gig.ts</span>
+              </div>
+              <div className="ml-auto font-mono text-[10px] tracking-wider text-slate-500">
+                ⌘ · run
+              </div>
+            </div>
+            {/* Code body */}
+            <div className="flex font-mono text-[13.5px] leading-7">
+              <div
+                className="select-none border-r border-white/[0.06] px-3 py-4 text-right text-slate-600"
+                style={{ minWidth: 36 }}
+              >
+                <div>01</div>
+                <div>02</div>
+                <div>03</div>
+                <div>04</div>
+              </div>
+              <div className="flex-1 space-y-0 px-4 py-4">
+                <div className="text-slate-500">// build · ship · scale</div>
+                <div className="truncate">{tokenize(codeLine, accent)}</div>
+                <div className="text-emerald-400/80">
+                  <span className="text-slate-500">→ </span>
+                  delivered
+                  <span className="text-slate-500"> · </span>
+                  <span style={{ color: accent }}>200 OK</span>
+                </div>
+                <div className="text-slate-600">
+                  {stack[0] ? `// stack: ${stack.join(' · ')}` : '// build clean.'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {heroImages.length > 0 ? (
+            <div className="flex w-full max-w-[460px] items-end justify-end gap-2">
+              {heroImages.map((src, idx) => (
+                <div
+                  key={`hero-${idx}`}
+                  className="relative overflow-hidden rounded-xl border shadow-xl"
+                  style={{
+                    width: 130,
+                    aspectRatio: '4 / 3',
+                    borderColor: '#ffffff1f',
+                    transform: idx === 0 ? 'rotate(-3deg)' : 'rotate(2deg)',
+                    boxShadow: `0 18px 40px rgba(0,0,0,0.45), 0 0 0 1px ${accent}33`,
+                  }}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    className="size-full object-cover"
+                    draggable={false}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between border-t border-white/10 px-14 py-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] tracking-[0.18em] uppercase text-slate-400">
+          {stack.length > 0 ? (
+            stack.map((label, i) => (
+              <span key={`${label}-${i}`} className="flex items-center gap-3">
+                {i > 0 ? (
+                  <span className="text-slate-700 select-none" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
+                <span className="text-slate-200">{label}</span>
+              </span>
+            ))
+          ) : (
+            <span className="text-slate-600">—</span>
+          )}
+        </div>
+        <div
+          className="h-2 w-40 shrink-0 rounded-full"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+          }}
+        />
       </div>
     </div>
   )

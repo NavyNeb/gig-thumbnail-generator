@@ -1,4 +1,4 @@
-import { PenLine, Sparkles } from 'lucide-react'
+import { PenLine, Sparkles, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -14,11 +14,11 @@ import {
   type Graphics1Settings,
 } from '@/templates/settings-types'
 
-type Props = {
-  settings: Graphics1Settings
-}
+type Props = { settings: Graphics1Settings }
 
-/** Hand-authored SVG decor — vector-poster feel, no external assets */
+const SERIF_STACK =
+  'Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif'
+
 function VectorBackdrop({
   accent1,
   accent2,
@@ -37,64 +37,51 @@ function VectorBackdrop({
       aria-hidden
     >
       <path
-        d="M-40 520 C180 380 320 680 520 560 C720 440 900 620 1120 480 C1220 420 1320 520 1380 400 L1380 820 L-40 820 Z"
+        d="M-40 560 C200 420 380 700 580 580 C780 460 940 640 1160 500 C1240 460 1320 540 1380 440 L1380 820 L-40 820 Z"
         fill={accent2}
+        fillOpacity={0.18}
+      />
+      <path
+        d="M960 -80 C1140 40 1220 220 1100 360 C980 500 800 420 720 260 C640 100 800 -40 960 -80 Z"
+        fill={accent1}
         fillOpacity={0.22}
       />
+      <circle cx="160" cy="120" r="100" stroke={ink} strokeWidth="2.5" fill="none" opacity={0.1} />
+      <circle cx="1180" cy="640" r="80" stroke={accent1} strokeWidth="3" fill="none" opacity={0.32} />
+      <path d="M90 220 L130 240 L110 280 L70 260 Z" fill={accent1} fillOpacity={0.35} />
+      <path d="M1130 200 L1170 220 L1150 270 L1090 250 Z" fill={accent2} fillOpacity={0.4} />
       <path
-        d="M980 -60 C1120 40 1180 200 1080 320 C980 440 820 380 760 240 C700 100 840 -40 980 -60 Z"
-        fill={accent1}
-        fillOpacity={0.28}
-      />
-      <circle cx="180" cy="140" r="120" stroke={ink} strokeWidth="3" fill="none" opacity={0.12} />
-      <circle cx="1180" cy="620" r="90" stroke={accent1} strokeWidth="4" fill="none" opacity={0.35} />
-      <path
-        d="M90 200 L130 220 L110 260 L70 240 Z"
-        fill={accent1}
-        fillOpacity={0.35}
-      />
-      <path
-        d="M1120 180 L1160 200 L1140 250 L1080 230 Z"
-        fill={accent2}
-        fillOpacity={0.4}
-      />
-      <path
-        d="M640 40 Q720 100 680 180 Q640 260 560 200 Q480 140 520 60 Q560 -20 640 40 Z"
-        fill={accent1}
-        fillOpacity={0.15}
-      />
-      <path
-        d="M200 600 Q260 520 360 560 Q460 600 420 680 Q380 760 280 720 Q180 680 200 600 Z"
-        stroke={ink}
-        strokeWidth="2.5"
-        fill="none"
-        opacity={0.14}
-      />
-      {/* Squiggle stroke */}
-      <path
-        d="M40 360 Q200 300 360 380 T680 340 T1000 400"
+        d="M40 380 Q200 320 360 400 T680 360 T1000 420"
         stroke={accent2}
-        strokeWidth="5"
+        strokeWidth="4"
         strokeLinecap="round"
         fill="none"
         opacity={0.45}
       />
+      {/* Crosshatch ornament */}
+      <g stroke={ink} strokeWidth="1.2" opacity={0.12}>
+        <line x1="60" y1="660" x2="200" y2="660" />
+        <line x1="60" y1="670" x2="200" y2="670" />
+        <line x1="60" y1="680" x2="200" y2="680" />
+      </g>
     </svg>
   )
 }
 
 export function Graphics1View({ settings }: Props) {
   const { t } = useTranslation()
-  const bg = settings.bgBase ?? '#f4f0e8'
-  const ink = settings.ink ?? '#1a1a2e'
-  const a1 = settings.accent1 ?? '#e11d48'
-  const a2 = settings.accent2 ?? '#0d9488'
+  const bg = settings.bgBase
+  const ink = settings.ink
+  const a1 = settings.accent1
+  const a2 = settings.accent2
 
   const features = [
     settings.featureLine1,
     settings.featureLine2,
     settings.featureLine3,
-  ].map((s) => s.trim()).filter(Boolean)
+  ]
+    .map((s) => s.trim())
+    .filter(Boolean)
 
   const skillSlots = paddedSkillIcons(
     settings.skillIcons,
@@ -117,52 +104,83 @@ export function Graphics1View({ settings }: Props) {
     >
       <VectorBackdrop accent1={a1} accent2={a2} ink={ink} />
 
-      <div className="relative z-10 flex h-full flex-row pb-14">
-        {/* Copy column */}
-        <div className="flex min-w-0 max-w-[52%] flex-1 flex-col justify-center py-10 pl-[72px] pr-6">
+      {/* Magazine masthead */}
+      <div
+        className="relative z-10 flex items-center justify-between border-b-2 px-[64px] py-3 font-mono text-[10px] tracking-[0.32em] uppercase"
+        style={{ borderColor: ink, color: ink }}
+      >
+        <div className="flex items-center gap-3">
+          <Star className="size-3" style={{ color: a1 }} fill={a1} />
+          <span>No 04 / Vector Studio</span>
+        </div>
+        <div className="opacity-70">EST. MMXXVI · ISSN 04-26</div>
+      </div>
+
+      <div className="relative z-10 grid h-[calc(100%-7rem)] grid-cols-12 gap-8 px-[64px] py-9">
+        {/* COPY — left column */}
+        <div className="col-span-7 flex min-w-0 flex-col">
           <span
-            className="mb-4 inline-flex w-fit rounded-full border-2 px-4 py-1.5 text-[12px] font-bold tracking-[0.2em] uppercase"
-            style={{ borderColor: ink, color: ink, opacity: 0.85 }}
+            className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full border-2 px-3.5 py-1 text-[11px] font-bold tracking-[0.22em] uppercase"
+            style={{ borderColor: ink, color: ink }}
           >
+            <Sparkles className="size-3" style={{ color: a1 }} />
             {settings.badgeText}
           </span>
 
           <h1
-            className="text-[54px] font-black leading-[0.98] tracking-tight text-balance"
-            style={{ color: ink }}
+            className="text-[64px] leading-[0.94] tracking-tight text-balance"
+            style={{
+              fontFamily: SERIF_STACK,
+              fontWeight: 500,
+              color: ink,
+            }}
           >
             {settings.headlineLine1}
             <br />
-            <span style={{ color: a1 }}>{settings.headlineLine2}</span>
+            <span
+              style={{
+                color: a1,
+                fontStyle: 'italic',
+              }}
+            >
+              {settings.headlineLine2}
+            </span>
           </h1>
 
-          <p className="mt-5 max-w-[480px] text-[18px] font-medium leading-snug text-balance opacity-90">
+          <p
+            className="mt-5 max-w-[480px] text-[17px] font-medium leading-snug text-balance"
+            style={{ color: ink, opacity: 0.85 }}
+          >
             {settings.subline}
           </p>
 
           {features.length > 0 ? (
-            <div className="mt-7 flex flex-wrap gap-2.5">
+            <div className="mt-6 flex flex-wrap gap-2">
               {features.map((line, i) => (
                 <span
                   key={`${line}-${i}`}
-                  className="inline-flex items-center gap-2 rounded-full border-2 bg-white/75 px-4 py-2 text-[14px] font-semibold shadow-sm backdrop-blur-sm"
+                  className="inline-flex items-center gap-2 rounded-full border-2 bg-white/85 px-3.5 py-1.5 text-[13px] font-semibold shadow-[3px_3px_0_rgba(0,0,0,0.08)] backdrop-blur-sm"
                   style={{ borderColor: ink, color: ink }}
                 >
-                  <Sparkles className="size-4 shrink-0" style={{ color: a2 }} aria-hidden />
+                  <span
+                    className="size-1.5 rounded-full"
+                    style={{ background: i === 0 ? a1 : i === 1 ? a2 : ink }}
+                  />
                   {line}
                 </span>
               ))}
             </div>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-auto flex flex-wrap items-center gap-2.5">
             {Array.from({ length: visibleSkillSlots }, (_, i) => {
               const src = skillSlots[i]?.trim()
               if (src) {
                 return (
                   <div
                     key={`${i}-${src.slice(0, 24)}`}
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-black/10 bg-white/90 p-1.5 shadow-md"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 bg-white p-1.5 shadow-[2px_2px_0_rgba(0,0,0,0.12)]"
+                    style={{ borderColor: ink }}
                   >
                     <img
                       src={src}
@@ -176,26 +194,48 @@ export function Graphics1View({ settings }: Props) {
               return (
                 <div
                   key={`g1-ph-${i}`}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-black/20 bg-white/40 p-1.5"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed bg-white/40 p-1.5"
+                  style={{ borderColor: `${ink}40` }}
                   aria-hidden
                 >
-                  <PenLine className="size-5 text-black/35" strokeWidth={2} />
+                  <PenLine
+                    className="size-4"
+                    style={{ color: `${ink}66` }}
+                    strokeWidth={2}
+                  />
                 </div>
               )
             })}
           </div>
         </div>
 
-        {/* Showcase — tilted “artboard” */}
-        <div className="relative flex min-w-0 flex-1 items-center justify-center pr-[72px] pl-2">
+        {/* SHOWCASE — hung gallery frame */}
+        <div className="relative col-span-5 flex min-w-0 items-center justify-center">
+          {/* Wall hook string */}
           <div
-            className="relative"
-            style={{ transform: 'rotate(-5deg)' }}
-          >
+            className="pointer-events-none absolute left-1/2 top-[8%] h-[8%] w-px -translate-x-1/2"
+            style={{ background: `${ink}40` }}
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute left-1/2 top-[6%] size-2 -translate-x-1/2 rounded-full"
+            style={{ background: ink }}
+            aria-hidden
+          />
+          <div className="relative" style={{ transform: 'rotate(-3deg)' }}>
+            {/* Mat board behind */}
             <div
-              className="overflow-hidden rounded-[32px] shadow-[12px_18px_0_0_rgba(0,0,0,0.12)]"
+              className="absolute inset-0 rounded-[24px]"
               style={{
-                width: 400,
+                background: `${a2}22`,
+                transform: 'translate(10px, 12px)',
+              }}
+              aria-hidden
+            />
+            <div
+              className="relative overflow-hidden rounded-[20px] shadow-[10px_14px_0_rgba(0,0,0,0.15)]"
+              style={{
+                width: 360,
                 aspectRatio: '4 / 5',
                 border: `5px solid ${ink}`,
                 backgroundColor: '#fff',
@@ -209,42 +249,65 @@ export function Graphics1View({ settings }: Props) {
                   draggable={false}
                 />
               ) : (
-                <div className="flex size-full flex-col items-center justify-center gap-4 bg-linear-to-br from-white to-neutral-100 p-8">
+                <div
+                  className="flex size-full flex-col items-center justify-center gap-4 p-8"
+                  style={{
+                    background: `linear-gradient(160deg, #fff 0%, ${a2}11 60%, ${a1}15 100%)`,
+                  }}
+                >
                   <div
-                    className="grid size-full max-h-[85%] max-w-[85%] place-items-center rounded-2xl border-2 border-dashed opacity-40"
-                    style={{ borderColor: ink }}
+                    className="flex size-full max-h-[80%] max-w-[80%] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed"
+                    style={{ borderColor: ink, opacity: 0.4 }}
                   >
-                    <PenLine className="size-20" strokeWidth={1.25} style={{ color: ink }} />
+                    <PenLine
+                      className="size-16"
+                      strokeWidth={1.25}
+                      style={{ color: ink }}
+                    />
+                    <p
+                      className="text-center text-[12px] font-bold tracking-widest uppercase"
+                      style={{ color: ink, opacity: 0.7 }}
+                    >
+                      {t('editor.graphics1.showcaseEmpty')}
+                    </p>
                   </div>
-                  <p
-                    className="text-center text-[12px] font-bold tracking-widest uppercase opacity-50"
-                    style={{ color: ink }}
-                  >
-                    {t('editor.graphics1.showcaseEmpty')}
-                  </p>
                 </div>
               )}
             </div>
-            {/* Vector corner ticks */}
+            {/* Corner ticks */}
             <div
-              className="pointer-events-none absolute -left-3 -top-3 size-8 border-l-4 border-t-4"
+              className="pointer-events-none absolute -left-3 -top-3 size-7 border-l-4 border-t-4"
               style={{ borderColor: a1 }}
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute -right-3 -bottom-3 size-8 border-b-4 border-r-4"
+              className="pointer-events-none absolute -right-3 -bottom-3 size-7 border-b-4 border-r-4"
               style={{ borderColor: a2 }}
               aria-hidden
             />
+            {/* Plate */}
+            <div
+              className="absolute -bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-md border-2 bg-white px-3 py-1 text-[10px] font-bold tracking-[0.24em] uppercase shadow-md"
+              style={{ borderColor: ink, color: ink }}
+            >
+              Plate I
+            </div>
           </div>
         </div>
       </div>
 
       <div
-        className="absolute bottom-0 left-0 right-0 z-20 flex justify-center border-t-2 py-3.5 text-[13px] font-bold tracking-wide uppercase opacity-80"
+        className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between border-t-2 px-[64px] py-3 text-[11px] font-bold tracking-[0.22em] uppercase"
         style={{ borderColor: ink, color: ink, backgroundColor: `${bg}ee` }}
       >
-        {settings.footerTag}
+        <span>{settings.footerTag}</span>
+        <span className="flex items-center gap-2 opacity-70">
+          <Star className="size-3" fill="currentColor" />
+          <Star className="size-3" fill="currentColor" />
+          <Star className="size-3" fill="currentColor" />
+          <Star className="size-3" fill="currentColor" />
+          <Star className="size-3" fill="currentColor" />
+        </span>
       </div>
     </div>
   )
