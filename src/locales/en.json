@@ -27,6 +27,7 @@
     "previewBadge": "Preview",
     "dimensions": "{{width}} × {{height}} px",
     "zoom": "Zoom",
+    "zoomFit": "Fit",
     "placeholderHint": "Full controls for this template will arrive in a later step.",
     "placeholderCanvas": "Template coming soon — this slot will get its own layout and controls.",
     "statusReady": "Ready",

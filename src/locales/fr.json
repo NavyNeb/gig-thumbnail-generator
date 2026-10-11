@@ -27,6 +27,7 @@
     "previewBadge": "Aperçu",
     "dimensions": "{{width}} × {{height}} px",
     "zoom": "Zoom",
+    "zoomFit": "Ajusté",
     "placeholderHint": "Les options complètes pour ce modèle arriveront dans une prochaine étape.",
     "placeholderCanvas": "Modèle à venir — cet emplacement aura son propre agencement et ses options.",
     "statusReady": "Prêt",

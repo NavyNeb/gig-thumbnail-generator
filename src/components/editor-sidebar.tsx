@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -18,7 +17,7 @@ import { TEMPLATE_REGISTRY } from '@/templates/registry'
 
 const CATEGORY_IDS: CategoryId[] = ['software', 'graphics', 'marketing']
 
-export function EditorSidebar() {
+export function EditorSidebar({ className }: { className?: string }) {
   const { t } = useTranslation()
   const activeCategoryId = useEditorStore((s) => s.activeCategoryId)
   const activeTemplateId = useEditorStore((s) => s.activeTemplateId)
@@ -58,16 +57,21 @@ export function EditorSidebar() {
   }
 
   return (
-    <div className="flex min-h-0 w-full min-w-0 flex-col md:max-w-md md:flex-shrink-0">
-      <Card className="flex max-h-[calc(100svh-7rem)] min-h-0 flex-1 flex-col overflow-hidden py-0">
+    <div
+      className={cn(
+        'flex w-full min-w-0 flex-col lg:min-h-0 lg:w-[24rem] lg:shrink-0 xl:w-[28rem]',
+        className,
+      )}
+    >
+      <Card className="flex min-w-0 flex-col py-0 lg:min-h-0 lg:flex-1 lg:overflow-hidden">
         <CardHeader className="shrink-0 space-y-1 px-4 pt-5 pb-3">
           <CardTitle className="text-base">{t('editor.selectCategory')}</CardTitle>
         </CardHeader>
-        <CardContent className="flex min-h-0 flex-1 flex-col gap-0 px-0 pb-0">
+        <CardContent className="flex min-w-0 flex-col gap-0 px-0 pb-0 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain [scrollbar-width:thin]">
           <Tabs
             value={activeCategoryId}
             onValueChange={(v) => setActiveCategory(v as CategoryId)}
-            className="flex min-h-0 flex-1 flex-col gap-0"
+            className="flex shrink-0 flex-col gap-0"
           >
             <div className="flex shrink-0 items-stretch gap-1 px-4 pb-3">
               <Button
@@ -122,13 +126,13 @@ export function EditorSidebar() {
               <TabsContent
                 key={cat}
                 value={cat}
-                className="mt-0 min-h-0 shrink-0 px-0 outline-none data-[state=inactive]:hidden"
+                className="mt-0 px-0 outline-none data-[state=inactive]:hidden"
               >
-                <ScrollArea className="h-[min(30vh,260px)] px-4 md:h-[min(28vh,240px)]">
+                <div className="px-4 pb-1">
                   <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
                     {t('editor.selectTemplate')}
                   </p>
-                  <ul className="flex flex-col gap-2 pb-1">
+                  <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
                     {CATEGORY_TEMPLATE_IDS[cat].map((id) => {
                       const def = TEMPLATE_REGISTRY[id]
                       const selected = activeTemplateId === id
@@ -167,22 +171,22 @@ export function EditorSidebar() {
                       )
                     })}
                   </ul>
-                </ScrollArea>
+                </div>
               </TabsContent>
             ))}
           </Tabs>
 
           <Separator className="my-1 shrink-0" />
 
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-4 pt-1">
+          <div className="flex min-w-0 flex-col px-4 pb-4 pt-1">
             <p className="text-muted-foreground mb-2 shrink-0 text-xs font-medium uppercase tracking-wide">
               {t('editor.customize')}
             </p>
-            <ScrollArea className="min-h-0 flex-1 pr-3 [--scrollbar-size:8px]">
-              <div className="space-y-5 pb-6 pr-1 pt-1">
+            <div className="min-w-0">
+              <div className="min-w-0 space-y-5 pb-4 pt-1">
                 <Controls />
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </CardContent>
       </Card>

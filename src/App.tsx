@@ -14,11 +14,11 @@ export default function App() {
   }, [i18n.language])
 
   return (
-    <div className="bg-background text-foreground flex min-h-svh flex-col">
+    <div className="bg-background text-foreground flex min-h-svh flex-col lg:h-svh lg:overflow-hidden">
       <AppHeader />
-      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:flex-row md:gap-6 md:p-6">
-        <EditorSidebar />
-        <ThumbnailPreview className="min-h-[min(60vh,560px)] min-w-0 md:min-h-0" />
+      <main className="flex min-w-0 flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:flex-row lg:gap-6 lg:p-6">
+        <EditorSidebar className="order-2 lg:order-1" />
+        <ThumbnailPreview className="order-1 lg:order-2" />
       </main>
     </div>
   )
